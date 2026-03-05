@@ -1,0 +1,193 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - Memoria{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Welcome back, {{ user_name }}! 👋</h1>
+    <p class="text-muted">Here's your health overview</p>
+</div>
+
+<div class="status-bar">
+    <div class="status-item {% if ollama_status %}status-ok{% else %}status-warn{% endif %}">
+        <span class="status-dot"></span>
+        {% if ollama_status %}
+            AI Engine: Online
+        {% else %}
+            AI Engine: Offline — <a href="https://ollama.ai" target="_blank">Install Ollama</a> for full AI features
+        {% endif %}
+    </div>
+</div>
+
+<div class="dashboard-grid">
+    <!-- Quick Chat Card -->
+    <div class="card card-large">
+        <div class="card-header">
+            <h3>💬 Quick Chat</h3>
+        </div>
+        <div class="card-body">
+            <p class="text-muted">Ask Memoria anything about your health</p>
+            <div class="quick-chat">
+                <input type="text" id="quick-chat-input" placeholder="How can I help you today?" class="input-large">
+                <button onclick="quickChat()" class="btn btn-primary" id="quick-chat-btn">Ask</button>
+            </div>
+            <div id="quick-chat-response" class="chat-response" style="display:none;"></div>
+            <a href="{{ url_for('chat') }}" class="btn btn-outline" style="margin-top: 1rem;">Open Full Chat →</a>
+        </div>
+    </div>
+
+    <!-- Health Profile Summary -->
+    <div class="card">
+        <div class="card-header">
+            <h3>👤 Health Profile</h3>
+            <a href="{{ url_for('profile_page') }}" class="btn btn-sm">Edit</a>
+        </div>
+        <div class="card-body">
+            {% if profile.name %}
+                <div class="profile-summary">
+                    <div class="profile-item"><strong>Name:</strong> {{ profile.name }}</div>
+                    {% if profile.age %}<div class="profile-item"><strong>Age:</strong> {{ profile.age }}</div>{% endif %}
+                    {% if profile.blood_type %}<div class="profile-item"><strong>Blood Type:</strong> {{ profile.blood_type }}</div>{% endif %}
+                </div>
+            {% else %}
+                <p class="text-muted">Set up your health profile to get personalized assistance</p>
+                <a href="{{ url_for('profile_page') }}" class="btn btn-outline">Set Up Profile</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Medications -->
+    <div class="card">
+        <div class="card-header">
+            <h3>💊 Medications</h3>
+        </div>
+        <div class="card-body">
+            {% if profile.medications %}
+                <ul class="item-list">
+                {% for med in profile.medications %}
+                    <li>
+                        <strong>{{ med.name }}</strong>
+                        {% if med.dosage %}<span class="badge">{{ med.dosage }}</span>{% endif %}
+                        {% if med.frequency %}<span class="text-muted">{{ med.frequency }}</span>{% endif %}
+                    </li>
+                {% endfor %}
+                </ul>
+            {% else %}
+                <p class="text-muted">No medications tracked</p>
+            {% endif %}
+            <a href="{{ url_for('profile_page') }}" class="btn btn-outline btn-sm">Manage</a>
+        </div>
+    </div>
+
+    <!-- Recent Symptoms -->
+    <div class="card">
+        <div class="card-header">
+            <h3>🩺 Recent Symptoms</h3>
+            <a href="{{ url_for('symptoms_page') }}" class="btn btn-sm">View All</a>
+        </div>
+        <div class="card-body">
+            {% if recent_symptoms %}
+                <ul class="item-list">
+                {% for s in recent_symptoms | reverse %}
+                    <li>
+                        <strong>{{ s.symptom }}</strong>
+                        <span class="severity severity-{{ 'high' if s.severity >= 7 else ('med' if s.severity >= 4 else 'low') }}">
+                            {{ s.severity }}/10
+                        </span>
+                        <span class="text-muted text-sm">{{ s.timestamp[:10] }}</span>
+                    </li>
+                {% endfor %}
+                </ul>
+            {% else %}
+                <p class="text-muted">No symptoms logged</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Recent Vitals -->
+    <div class="card">
+        <div class="card-header">
+            <h3>❤️ Recent Vitals</h3>
+            <a href="{{ url_for('vitals_page') }}" class="btn btn-sm">View All</a>
+        </div>
+        <div class="card-body">
+            {% if recent_vitals %}
+                <ul class="item-list">
+                {% for v in recent_vitals | reverse %}
+                    <li>
+                        <strong>{{ v.type }}</strong>
+                        <span class="badge">{{ v.value }} {{ v.unit }}</span>
+                        <span class="text-muted text-sm">{{ v.timestamp[:10] }}</span>
+                    </li>
+                {% endfor %}
+                </ul>
+            {% else %}
+                <p class="text-muted">No vitals recorded</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Conditions & Allergies -->
+    <div class="card">
+        <div class="card-header">
+            <h3>📋 Conditions & Allergies</h3>
+        </div>
+        <div class="card-body">
+            {% if profile.conditions %}
+                <div class="tag-group">
+                    <strong>Conditions:</strong>
+                    {% for c in profile.conditions %}
+                        <span class="tag tag-condition">{{ c }}</span>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            {% if profile.allergies %}
+                <div class="tag-group">
+                    <strong>Allergies:</strong>
+                    {% for a in profile.allergies %}
+                        <span class="tag tag-allergy">{{ a }}</span>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            {% if not profile.conditions and not profile.allergies %}
+                <p class="text-muted">None recorded</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+function quickChat() {
+    const input = document.getElementById('quick-chat-input');
+    const btn = document.getElementById('quick-chat-btn');
+    const responseDiv = document.getElementById('quick-chat-response');
+    const message = input.value.trim();
+    if (!message) return;
+
+    btn.disabled = true;
+    btn.textContent = '...';
+    responseDiv.style.display = 'block';
+    responseDiv.innerHTML = '<div class="typing">Thinking...</div>';
+
+    fetch('/api/chat', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({message: message})
+    })
+    .then(r => r.json())
+    .then(data => {
+        responseDiv.innerHTML = '<div class="ai-message">' + formatMarkdown(data.response) + '</div>';
+        btn.disabled = false;
+        btn.textContent = 'Ask';
+    })
+    .catch(() => {
+        responseDiv.innerHTML = '<div class="error">Failed to get response</div>';
+        btn.disabled = false;
+        btn.textContent = 'Ask';
+    });
+}
+
+document.getElementById('quick-chat-input').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') quickChat();
+});
+</script>
+{% endblock %}

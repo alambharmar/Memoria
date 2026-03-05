@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% block title %}Symptoms - Memoria{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>🩺 Symptom Tracker</h1>
+    <p class="text-muted">Log and monitor your symptoms over time</p>
+</div>
+
+<div class="tracker-layout">
+    <!-- Log new symptom -->
+    <div class="card">
+        <div class="card-header">
+            <h3>Log a Symptom</h3>
+        </div>
+        <div class="card-body">
+            <form onsubmit="logSymptom(event)">
+                <div class="form-group">
+                    <label for="s-name">Symptom</label>
+                    <input type="text" id="s-name" placeholder="e.g., Headache, Nausea, Fatigue..." required>
+                </div>
+                <div class="form-group">
+                    <label for="s-severity">Severity: <span id="severity-val">5</span>/10</label>
+                    <input type="range" id="s-severity" min="1" max="10" value="5" oninput="document.getElementById('severity-val').textContent=this.value">
+                    <div class="range-labels">
+                        <span>Mild</span>
+                        <span>Moderate</span>
+                        <span>Severe</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="s-notes">Notes</label>
+                    <textarea id="s-notes" placeholder="Any additional details..." rows="3"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Log Symptom</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Symptom History -->
+    <div class="card card-large">
+        <div class="card-header">
+            <h3>Symptom History</h3>
+        </div>
+        <div class="card-body">
+            {% if entries %}
+            <div class="table-wrapper">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Symptom</th>
+                            <th>Severity</th>
+                            <th>Notes</th>
+                            <th>Date</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for entry in entries | reverse %}
+                        <tr>
+                            <td><strong>{{ entry.symptom }}</strong></td>
+                            <td>
+                                <span class="severity severity-{{ 'high' if entry.severity >= 7 else ('med' if entry.severity >= 4 else 'low') }}">
+                                    {{ entry.severity }}/10
+                                </span>
+                            </td>
+                            <td>{{ entry.notes or '—' }}</td>
+                            <td class="text-muted">{{ entry.timestamp[:16].replace('T', ' ') }}</td>
+                            <td>
+                                <button onclick="deleteSymptom({{ loop.revindex0 }})" class="btn btn-danger btn-sm">×</button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <p>📝 No symptoms logged yet</p>
+                <p class="text-muted">Start tracking your symptoms to identify patterns</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+function logSymptom(e) {
+    e.preventDefault();
+    const data = {
+        symptom: document.getElementById('s-name').value,
+        severity: parseInt(document.getElementById('s-severity').value),
+        notes: document.getElementById('s-notes').value,
+    };
+    fetch('/api/symptoms', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(data)
+    }).then(() => location.reload());
+}
+
+function deleteSymptom(index) {
+    if (!confirm('Delete this symptom entry?')) return;
+    fetch('/api/symptoms/' + index, {method: 'DELETE'})
+    .then(() => location.reload());
+}
+</script>
+{% endblock %}
