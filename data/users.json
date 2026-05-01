@@ -1,0 +1,13 @@
+{
+  "admin": {
+    "password": "memoria123",
+    "profile": {
+      "name": "Muhammad Alam",
+      "age": "20",
+      "allergies": [],
+      "conditions": [],
+      "medications": [],
+      "notes": ""
+    }
+  }
+}

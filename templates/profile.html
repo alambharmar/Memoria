@@ -1,0 +1,276 @@
+{% extends "base.html" %}
+{% block title %}Health Profile - Memoria{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Health Profile</h1>
+    <p class="text-muted">Manage your personal health information</p>
+</div>
+
+<div class="profile-grid">
+    <!-- Basic Info -->
+    <div class="card">
+        <div class="card-header">
+            <h3>Basic Information</h3>
+        </div>
+        <div class="card-body">
+            <form id="profile-form" onsubmit="saveProfile(event)">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="p-name">Full Name</label>
+                        <input type="text" id="p-name" value="{{ profile.name }}" placeholder="Your name">
+                    </div>
+                    <div class="form-group">
+                        <label for="p-age">Age</label>
+                        <input type="number" id="p-age" value="{{ profile.age or '' }}" placeholder="Age" min="0" max="150">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="p-gender">Gender</label>
+                        <select id="p-gender">
+                            <option value="">Select...</option>
+                            <option value="Male" {% if profile.gender == 'Male' %}selected{% endif %}>Male</option>
+                            <option value="Female" {% if profile.gender == 'Female' %}selected{% endif %}>Female</option>
+                            <option value="Other" {% if profile.gender == 'Other' %}selected{% endif %}>Other</option>
+                            <option value="Prefer not to say" {% if profile.gender == 'Prefer not to say' %}selected{% endif %}>Prefer not to say</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="p-blood">Blood Type</label>
+                        <select id="p-blood">
+                            <option value="">Select...</option>
+                            {% for bt in ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'] %}
+                            <option value="{{ bt }}" {% if profile.blood_type == bt %}selected{% endif %}>{{ bt }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="p-height">Height</label>
+                        <input type="text" id="p-height" value="{{ profile.height }}" placeholder='e.g., 5\'10" or 178cm'>
+                    </div>
+                    <div class="form-group">
+                        <label for="p-weight">Weight</label>
+                        <input type="text" id="p-weight" value="{{ profile.weight }}" placeholder="e.g., 165 lbs or 75 kg">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="p-emergency">Emergency Contact</label>
+                    <input type="text" id="p-emergency" value="{{ profile.emergency_contact }}" placeholder="Name - Phone number">
+                </div>
+                <button type="submit" class="btn btn-primary">Save Profile</button>
+            </form>
+            <div id="profile-msg" class="form-message" style="display:none;"></div>
+        </div>
+    </div>
+
+    <!-- Conditions -->
+    <div class="card">
+        <div class="card-header">
+            <h3>Health Conditions</h3>
+        </div>
+        <div class="card-body">
+            <div class="add-item-form">
+                <input type="text" id="new-condition" placeholder="Add a condition...">
+                <button onclick="addCondition()" class="btn btn-primary btn-sm">Add</button>
+            </div>
+            <div id="conditions-list" class="tag-list">
+                {% for c in profile.conditions %}
+                <span class="tag tag-condition">{{ c }} <button onclick="removeCondition('{{ c }}')" class="tag-remove">×</button></span>
+                {% endfor %}
+            </div>
+            {% if not profile.conditions %}
+            <p class="text-muted" id="no-conditions">No conditions recorded</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Allergies -->
+    <div class="card">
+        <div class="card-header">
+            <h3>Allergies</h3>
+        </div>
+        <div class="card-body">
+            <div class="add-item-form">
+                <input type="text" id="new-allergy" placeholder="Add an allergy...">
+                <button onclick="addAllergy()" class="btn btn-primary btn-sm">Add</button>
+            </div>
+            <div id="allergies-list" class="tag-list">
+                {% for a in profile.allergies %}
+                <span class="tag tag-allergy">{{ a }} <button onclick="removeAllergy('{{ a }}')" class="tag-remove">×</button></span>
+                {% endfor %}
+            </div>
+            {% if not profile.allergies %}
+            <p class="text-muted" id="no-allergies">No allergies recorded</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Medications -->
+    <div class="card card-large">
+        <div class="card-header">
+            <h3>Medications</h3>
+        </div>
+        <div class="card-body">
+            <form onsubmit="addMedication(event)" class="med-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Medication Name</label>
+                        <input type="text" id="med-name" placeholder="e.g., Ibuprofen" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Dosage</label>
+                        <input type="text" id="med-dosage" placeholder="e.g., 200mg">
+                    </div>
+                    <div class="form-group">
+                        <label>Frequency</label>
+                        <input type="text" id="med-frequency" placeholder="e.g., Twice daily">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Notes</label>
+                    <input type="text" id="med-notes" placeholder="Any notes...">
+                </div>
+                <button type="submit" class="btn btn-primary btn-sm">Add Medication</button>
+            </form>
+            <div id="medications-list" class="item-list" style="margin-top: 1rem;">
+                {% for med in profile.medications %}
+                <div class="list-item">
+                    <div>
+                        <strong>{{ med.name }}</strong>
+                        {% if med.dosage %}<span class="badge">{{ med.dosage }}</span>{% endif %}
+                        {% if med.frequency %}<span class="text-muted">| {{ med.frequency }}</span>{% endif %}
+                        {% if med.notes %}<p class="text-muted text-sm">{{ med.notes }}</p>{% endif %}
+                    </div>
+                    <button onclick="removeMedication('{{ med.name }}')" class="btn btn-danger btn-sm">Remove</button>
+                </div>
+                {% endfor %}
+            </div>
+            {% if not profile.medications %}
+            <p class="text-muted" id="no-meds">No medications tracked</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+function saveProfile(e) {
+    e.preventDefault();
+    const data = {
+        name: document.getElementById('p-name').value,
+        age: parseInt(document.getElementById('p-age').value) || null,
+        gender: document.getElementById('p-gender').value,
+        blood_type: document.getElementById('p-blood').value,
+        height: document.getElementById('p-height').value,
+        weight: document.getElementById('p-weight').value,
+        emergency_contact: document.getElementById('p-emergency').value,
+    };
+    fetch('/api/profile', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(data)
+    }).then(r => r.json()).then((res) => {
+        const savedName = (res.profile?.name || '').trim();
+        if (savedName) {
+            // Update all name displays on the current page
+            document.querySelectorAll('.nav-username, .profile-name').forEach((el) => {
+                el.textContent = savedName;
+            });
+            document.querySelectorAll('.profile-initial').forEach((el) => {
+                el.textContent = savedName[0].toUpperCase();
+            });
+            // Update dashboard greeting if present
+            const dashGreeting = document.querySelector('.dash-greeting');
+            if (dashGreeting) {
+                dashGreeting.textContent = 'Welcome back, ' + savedName;
+            }
+            // Update topbar greeting if present (chat page)
+            const topbarH1 = document.querySelector('.topbar-greeting h1');
+            if (topbarH1) {
+                topbarH1.textContent = 'Welcome back, ' + savedName;
+            }
+        }
+        showMessage('profile-msg', 'Profile saved!', 'success');
+    });
+}
+
+function addCondition() {
+    const input = document.getElementById('new-condition');
+    const val = input.value.trim();
+    if (!val) return;
+    fetch('/api/profile/condition', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({condition: val})
+    }).then(() => location.reload());
+}
+
+function removeCondition(name) {
+    fetch('/api/profile/condition', {
+        method: 'DELETE',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({condition: name})
+    }).then(() => location.reload());
+}
+
+function addAllergy() {
+    const input = document.getElementById('new-allergy');
+    const val = input.value.trim();
+    if (!val) return;
+    fetch('/api/profile/allergy', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({allergy: val})
+    }).then(() => location.reload());
+}
+
+function removeAllergy(name) {
+    fetch('/api/profile/allergy', {
+        method: 'DELETE',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({allergy: name})
+    }).then(() => location.reload());
+}
+
+function addMedication(e) {
+    e.preventDefault();
+    const data = {
+        name: document.getElementById('med-name').value,
+        dosage: document.getElementById('med-dosage').value,
+        frequency: document.getElementById('med-frequency').value,
+        notes: document.getElementById('med-notes').value,
+    };
+    if (!data.name) return;
+    fetch('/api/profile/medication', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(data)
+    }).then(() => location.reload());
+}
+
+function removeMedication(name) {
+    fetch('/api/profile/medication', {
+        method: 'DELETE',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({name: name})
+    }).then(() => location.reload());
+}
+
+function showMessage(id, text, type) {
+    const el = document.getElementById(id);
+    el.textContent = text;
+    el.className = 'form-message ' + type;
+    el.style.display = 'block';
+    setTimeout(() => { el.style.display = 'none'; }, 3000);
+}
+
+document.getElementById('new-condition').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') addCondition();
+});
+document.getElementById('new-allergy').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') addAllergy();
+});
+</script>
+{% endblock %}

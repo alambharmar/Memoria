@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat — Memoria</title>
+    <meta name="description" content="Memoria — Your AI-powered health assistant">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script>
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    </script>
+</head>
+<body>
+    <div class="shell" id="shell"
+         data-user-name="{{ user_name }}"
+         data-ai-status="{{ 'online' if ai_status else 'limited' }}"
+         data-model="{{ model }}">
+
+        <!-- Sidebar Open Button (visible when collapsed) -->
+        <button class="sidebar-open-btn" id="sidebar-open-btn" type="button" aria-label="Open sidebar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 12h18"></path>
+                <path d="M3 6h18"></path>
+                <path d="M3 18h18"></path>
+            </svg>
+        </button>
+
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="brand">
+                <img src="{{ url_for('static', filename='img/icon.png') }}" alt="" class="brand-logo">
+                <div>
+                    <div class="brand-name">Memoria</div>
+                    <div class="brand-sub">Health Intelligence</div>
+                </div>
+            </div>
+
+            <div class="sidebar-nav-links">
+                <div class="history-label">Navigate</div>
+                <a href="{{ url_for('dashboard') }}" class="nav-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+                    Dashboard
+                </a>
+                <a href="{{ url_for('profile_page') }}" class="nav-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21a8 8 0 0 0-16 0"/><circle cx="12" cy="8" r="4"/></svg>
+                    Health Profile
+                </a>
+                <a href="{{ url_for('track_page') }}" class="nav-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-4.5-7-11a4 4 0 0 1 7-2.8A4 4 0 0 1 19 10c0 6.5-7 11-7 11z"/></svg>
+                    Track Health
+                </a>
+                <a href="{{ url_for('settings_page') }}" class="nav-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33h.09a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                    Settings
+                </a>
+            </div>
+
+            <button class="new-chat-btn" id="new-chat-btn" type="button">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 5v14"></path>
+                    <path d="M5 12h14"></path>
+                </svg>
+                <span>New Chat</span>
+            </button>
+
+            <div class="history-label">Conversations</div>
+            <ul class="history-list" id="history-list"></ul>
+
+            <div class="sidebar-bottom">
+                <a href="{{ url_for('logout') }}" class="nav-link nav-logout">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                    Log out
+                </a>
+                <div class="model-chip {{ 'status-ok' if ai_status else 'status-warn' }}">
+                    <span class="status-dot"></span>
+                    <span>{{ model if ai_status else 'Limited mode' }}</span>
+                </div>
+                <button class="sidebar-toggle-btn" id="sidebar-toggle" type="button" aria-label="Collapse sidebar">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M15 6l-6 6 6 6"></path>
+                    </svg>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Chat -->
+        <section class="main">
+            <header class="topbar">
+                <div class="topbar-greeting">
+                    <div class="eyebrow">Memoria Assistant</div>
+                    <h1>Welcome back, {{ user_name }}</h1>
+                </div>
+                <div class="topbar-actions">
+                    <button class="btn btn-sm btn-outline" id="clear-chat-btn" style="margin-right: 12px;">Clear Chat</button>
+                    <div class="profile-menu" id="profile-menu">
+                        <button class="profile-trigger" id="profile-trigger" type="button" aria-expanded="false" aria-label="Profile menu">
+                            <span class="profile-initial">{{ user_name[:1] }}</span>
+                            <span class="profile-name">{{ user_name }}</span>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M6 9l6 6 6-6"></path>
+                            </svg>
+                        </button>
+                        <div class="profile-dropdown" id="profile-dropdown">
+                            <a href="{{ url_for('profile_page') }}">Health Profile</a>
+                            <a href="{{ url_for('dashboard') }}">Dashboard</a>
+                            <a href="{{ url_for('logout') }}">Log out</a>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="chat-stage" id="chat-stage">
+                <div class="error-banner" id="error-banner" role="alert">
+                    <span id="error-text"></span>
+                    <button type="button" id="error-dismiss" aria-label="Dismiss error">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18 6L6 18"></path>
+                            <path d="M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                <div class="messages" id="messages"></div>
+            </div>
+
+            <footer class="composer">
+                <form class="composer-form" id="chat-form" autocomplete="off">
+                    <div class="input-wrap" id="input-wrap">
+                        <textarea id="chat-input" placeholder="Message Memoria…" rows="1"></textarea>
+                        <button class="send-btn" id="send-btn" type="submit" aria-label="Send message">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M5 12h14"></path>
+                                <path d="M12 5l7 7-7 7"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </form>
+                <p class="disclaimer">Memoria is an AI assistant and does not replace professional medical advice.</p>
+            </footer>
+        </section>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

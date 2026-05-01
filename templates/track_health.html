@@ -1,0 +1,249 @@
+{% extends "base.html" %}
+{% block title %}Track Health — Memoria{% endblock %}
+
+{% block content %}
+<div class="header">
+    <div class="header-left">
+        <h1 class="page-title">Track Health</h1>
+    </div>
+</div>
+
+<div class="segmented-control" style="margin-top: 24px; margin-bottom: 24px;">
+    <button class="segment segment-active" data-target="symptoms-view">Symptoms</button>
+    <button class="segment" data-target="vitals-view">Vitals</button>
+</div>
+
+<!-- SYMPTOMS VIEW -->
+<div id="symptoms-view" class="view-panel">
+    <div class="dash-two-col">
+        <div class="card">
+            <div class="card-header">
+                <h3>Log Symptom</h3>
+            </div>
+            <div class="card-body">
+                <form id="symptom-form">
+                    <div class="form-group">
+                        <label>What are you feeling?</label>
+                        <input type="text" id="sym-desc" class="input" placeholder="e.g., Headache, Fever" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="severity-label-row">
+                            <span>Intensity</span>
+                            <span class="severity-pill"><span id="sev-val">5</span>/10</span>
+                        </label>
+                        <div class="severity-slider-wrap">
+                            <input type="range" id="sym-sev" min="1" max="10" value="5">
+                            <div class="severity-scale">
+                                <span>Mild</span>
+                                <span>Moderate</span>
+                                <span>High</span>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Log Symptom</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h3>Recent Symptoms</h3>
+            </div>
+            <div class="card-body">
+                {% if symptoms %}
+                <div class="activity-list">
+                    {% for s in symptoms | reverse %}
+                    <div class="activity-item">
+                        <div class="activity-left">
+                            <span class="severity severity-{{ 'high' if s.severity >= 7 else ('med' if s.severity >= 4 else 'low') }}">{{ s.severity }}/10</span>
+                            <span>{{ s.symptom }}</span>
+                        </div>
+                        <span class="text-muted text-sm">{{ s.timestamp[:10] }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="empty-state"><p>No symptoms logged.</p></div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- VITALS VIEW -->
+<div id="vitals-view" class="view-panel" style="display: none;">
+    <div class="dash-two-col">
+        <div class="card">
+            <div class="card-header">
+                <h3>Record Vitals</h3>
+            </div>
+            <div class="card-body">
+                <form id="vital-form">
+                    <div class="form-group">
+                        <label>Type</label>
+                        <select id="vit-type" class="input" style="background: var(--surface); color: var(--text);">
+                            <option value="Blood Pressure">Blood Pressure</option>
+                            <option value="Heart Rate">Heart Rate</option>
+                            <option value="Temperature">Temperature</option>
+                            <option value="Weight">Weight</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Value</label>
+                        <input type="text" id="vit-val" class="input" placeholder="e.g., 120/80" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Unit (Optional)</label>
+                        <input type="text" id="vit-unit" class="input" placeholder="e.g., mmHg, bpm">
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Record Vital</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h3>Recent Vitals</h3>
+            </div>
+            <div class="card-body">
+                {% if vitals %}
+                <div class="activity-list">
+                    {% for v in vitals | reverse %}
+                    <div class="activity-item">
+                        <div class="activity-left">
+                            <span class="badge">{{ v.value }} {{ v.unit }}</span>
+                            <span>{{ v.type }}</span>
+                        </div>
+                        <span class="text-muted text-sm">{{ v.timestamp[:10] }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="empty-state"><p>No vitals recorded.</p></div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Segmented Control Styles */
+.segmented-control {
+    display: inline-flex;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 4px;
+}
+.segment {
+    background: transparent;
+    border: none;
+    padding: 6px 16px;
+    color: var(--text-muted);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+.segment-active {
+    background: var(--border);
+    color: var(--text);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.severity-label-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.severity-pill {
+    min-width: 56px;
+    text-align: center;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text);
+    background: var(--surface-hover);
+    border: 1px solid var(--border);
+}
+
+.severity-slider-wrap {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 12px 8px;
+    background: var(--surface-hover);
+}
+
+.severity-slider-wrap input[type="range"] {
+    width: 100%;
+}
+
+.severity-scale {
+    margin-top: 6px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--text-secondary);
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // Segmented Control Logic
+    const segments = document.querySelectorAll('.segment');
+    const panels = document.querySelectorAll('.view-panel');
+    
+    segments.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const target = btn.getAttribute('data-target');
+            
+            segments.forEach(s => s.classList.remove('segment-active'));
+            btn.classList.add('segment-active');
+            
+            panels.forEach(p => p.style.display = 'none');
+            document.getElementById(target).style.display = 'block';
+        });
+    });
+
+    // Symptoms API Bind
+    const symSev = document.getElementById('sym-sev');
+    const sevVal = document.getElementById('sev-val');
+    if(symSev) {
+        symSev.addEventListener('input', e => sevVal.textContent = e.target.value);
+    }
+    document.getElementById('symptom-form')?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const payload = {
+            symptoms: [document.getElementById('sym-desc').value],
+            severity: parseInt(symSev.value) >= 7 ? 'high' : (parseInt(symSev.value) >= 4 ? 'medium' : 'low')
+        };
+        await fetch('/symptoms/add', {
+            method: 'POST', headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(payload)
+        });
+        window.location.reload();
+    });
+
+    // Vitals API Bind
+    document.getElementById('vital-form')?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const payload = {
+            type: document.getElementById('vit-type').value,
+            value: document.getElementById('vit-val').value,
+            unit: document.getElementById('vit-unit').value,
+            notes: ''
+        };
+        await fetch('/api/vitals', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(payload)
+        });
+        window.location.reload();
+    });
+});
+</script>
+{% endblock %}

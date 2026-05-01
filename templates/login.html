@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login — Memoria</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="login-page">
+        <div class="login-card">
+            <div class="login-brand">
+                <img src="{{ url_for('static', filename='img/icon.png') }}" alt="" class="login-logo">
+                <h1>Memoria</h1>
+                <p>AI-Powered Health Intelligence</p>
+            </div>
+            {% if error %}
+            <div class="login-error">{{ error }}</div>
+            {% endif %}
+            <form method="POST" action="{{ url_for('session_login') }}" class="login-form" autocomplete="off">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" placeholder="Enter username" required autofocus>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Enter password" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-full">Sign In</button>
+            </form>
+            <p class="login-hint">Use: <strong>admin</strong> / <strong>memoria123</strong></p>
+        </div>
+    </div>
+</body>
+</html>

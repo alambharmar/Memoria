@@ -1,0 +1,182 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — Memoria{% endblock %}
+
+{% block content %}
+<div class="dash">
+    <!-- Greeting + Status -->
+    <div class="dash-hero">
+        <div>
+            <h1 class="dash-greeting">Welcome back, {{ user_name }}</h1>
+            <p class="dash-sub">Your health at a glance</p>
+        </div>
+        <div class="dash-status {{ 'status-ok' if ai_status else 'status-warn' }}">
+            <span class="status-dot"></span>
+            <span>AI {{ 'Online' if ai_status else 'Offline' }}</span>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="dash-actions">
+        <a href="{{ url_for('chat') }}" class="dash-action-card dash-action-chat">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M8 9h8"/><path d="M8 13h5"/></svg>
+            <div>
+                <strong>Chat with Memoria</strong>
+                <span>Ask about symptoms, medications, or health</span>
+            </div>
+            <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+        </a>
+        <a href="{{ url_for('track_page') }}" class="dash-action-card">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-4.5-7-11a4 4 0 0 1 7-2.8A4 4 0 0 1 19 10c0 6.5-7 11-7 11z"/></svg>
+            <div>
+                <strong>Track Health</strong>
+                <span>Log your symptoms and vitals</span>
+            </div>
+            <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+        </a>
+    </div>
+
+    <!-- Stats Row -->
+    <div class="dash-stats">
+        <div class="stat-card">
+            <div class="stat-value">{{ profile.medications | length }}</div>
+            <div class="stat-label">Medications</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ profile.conditions | length }}</div>
+            <div class="stat-label">Conditions</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ profile.allergies | length }}</div>
+            <div class="stat-label">Allergies</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ recent_symptoms | length }}</div>
+            <div class="stat-label">Recent Symptoms</div>
+        </div>
+    </div>
+
+    <!-- Two Column -->
+    <div class="dash-two-col">
+        <!-- Profile Snapshot -->
+        <div class="card">
+            <div class="card-header">
+                <h3>Health Profile</h3>
+                <a href="{{ url_for('profile_page') }}" class="btn btn-sm btn-outline">Edit</a>
+            </div>
+            <div class="card-body">
+                {% if profile.name %}
+                <div class="profile-rows">
+                    <div class="profile-row"><span class="profile-label">Name</span><span>{{ profile.name }}</span></div>
+                    {% if profile.age %}<div class="profile-row"><span class="profile-label">Age</span><span>{{ profile.age }}</span></div>{% endif %}
+                    {% if profile.blood_type %}<div class="profile-row"><span class="profile-label">Blood Type</span><span class="badge">{{ profile.blood_type }}</span></div>{% endif %}
+                    {% if profile.height %}<div class="profile-row"><span class="profile-label">Height</span><span>{{ profile.height }}</span></div>{% endif %}
+                    {% if profile.weight %}<div class="profile-row"><span class="profile-label">Weight</span><span>{{ profile.weight }}</span></div>{% endif %}
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <p>No profile set up yet</p>
+                    <a href="{{ url_for('profile_page') }}" class="btn btn-primary btn-sm">Set Up Profile</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Active Medications -->
+        <div class="card">
+            <div class="card-header">
+                <h3>Medications</h3>
+                <a href="{{ url_for('profile_page') }}" class="btn btn-sm btn-outline">Manage</a>
+            </div>
+            <div class="card-body">
+                {% if profile.medications %}
+                <div class="med-list">
+                    {% for med in profile.medications %}
+                    <div class="med-item">
+                        <div class="med-name">{{ med.name }}</div>
+                        <div class="med-meta">
+                            {% if med.dosage %}<span class="badge">{{ med.dosage }}</span>{% endif %}
+                            {% if med.frequency %}<span class="text-muted">{{ med.frequency }}</span>{% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="empty-state"><p>No medications tracked</p></div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="dash-two-col">
+        <!-- Recent Symptoms -->
+        <div class="card">
+            <div class="card-header">
+                <h3>Recent Symptoms</h3>
+                <a href="{{ url_for('track_page') }}" class="btn btn-sm btn-outline">View All</a>
+            </div>
+            <div class="card-body">
+                {% if recent_symptoms %}
+                <div class="activity-list">
+                    {% for s in recent_symptoms | reverse %}
+                    <div class="activity-item">
+                        <div class="activity-left">
+                            <span class="severity severity-{{ 'high' if s.severity >= 7 else ('med' if s.severity >= 4 else 'low') }}">{{ s.severity }}/10</span>
+                            <span>{{ s.symptom }}</span>
+                        </div>
+                        <span class="text-muted text-sm">{{ s.timestamp[:10] }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="empty-state"><p>No symptoms logged yet</p></div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Recent Vitals -->
+        <div class="card">
+            <div class="card-header">
+                <h3>Recent Vitals</h3>
+                <a href="{{ url_for('track_page') }}" class="btn btn-sm btn-outline">View All</a>
+            </div>
+            <div class="card-body">
+                {% if recent_vitals %}
+                <div class="activity-list">
+                    {% for v in recent_vitals | reverse %}
+                    <div class="activity-item">
+                        <div class="activity-left">
+                            <span class="badge">{{ v.value }} {{ v.unit }}</span>
+                            <span>{{ v.type }}</span>
+                        </div>
+                        <span class="text-muted text-sm">{{ v.timestamp[:10] }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="empty-state"><p>No vitals recorded yet</p></div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Conditions & Allergies -->
+    {% if profile.conditions or profile.allergies %}
+    <div class="card">
+        <div class="card-header">
+            <h3>Conditions & Allergies</h3>
+        </div>
+        <div class="card-body">
+            <div class="tag-row">
+                {% for c in profile.conditions %}
+                <span class="tag tag-condition">{{ c }}</span>
+                {% endfor %}
+                {% for a in profile.allergies %}
+                <span class="tag tag-allergy">{{ a }}</span>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
