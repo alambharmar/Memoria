@@ -6,8 +6,8 @@ import os
 import time
 import warnings
 
-from flask import Flask, g, jsonify, redirect, render_template, request, session, url_for
-from flask_cors import CORS
+from flask import Flask, g, jsonify, redirect, render_template, request, session, url_for  # pyright: ignore[reportMissingImports]
+from flask_cors import CORS  # pyright: ignore[reportMissingModuleSource]
 
 import config
 from ai.engine import AIEngine
