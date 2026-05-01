@@ -36,8 +36,10 @@ python app.py
 
 Default login:
 
-- username: admin
-- password: memoria123
+- username: memoria
+- password: memoria
+
+You can override these with `DEFAULT_USER_USERNAME` and `DEFAULT_USER_PASSWORD`.
 
 ## API Endpoints
 

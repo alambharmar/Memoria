@@ -50,7 +50,10 @@ class TestMedicalHub(unittest.TestCase):
     def _login(self):
         resp = self.client.post(
             "/login",
-            json={"username": "admin", "password": "memoria123"},
+            json={
+                "username": config.DEFAULT_USER["username"],
+                "password": config.DEFAULT_USER["password"],
+            },
         )
         self.assertEqual(resp.status_code, 200)
 

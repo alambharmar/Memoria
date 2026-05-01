@@ -117,7 +117,7 @@ def create_app():
             session["user_id"] = username
             session["user_name"] = (HealthProfile(username).to_dict().get("name") or "").strip() or username
             return redirect(url_for("dashboard"))
-        return render_template("login.html", error="Invalid credentials. Try admin / memoria123")
+        return render_template("login.html", error="Invalid credentials. Check your username and password.")
 
     @app.route("/logout", methods=["GET"])
     def logout():

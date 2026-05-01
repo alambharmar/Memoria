@@ -16,9 +16,9 @@ DEBUG = os.environ.get("FLASK_DEBUG", "1") == "1"
 OLLAMA_URL = "http://localhost:11434/api/generate"
 OLLAMA_MODEL = "llama3"
 
-# Hardcoded user credentials (as requested, login is not the focus)
+# Default credentials (use env vars for public deployments)
 DEFAULT_USER = {
-    "username": "admin",
-    "password": "memoria123",
-    "name": "User",
+    "username": os.environ.get("DEFAULT_USER_USERNAME", "memoria"),
+    "password": os.environ.get("DEFAULT_USER_PASSWORD", "memoria"),
+    "name": os.environ.get("DEFAULT_USER_NAME", "User"),
 }

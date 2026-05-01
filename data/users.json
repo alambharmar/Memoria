@@ -1,9 +1,9 @@
 {
-  "admin": {
-    "password": "memoria123",
+  "memoria": {
+    "password": "memoria",
     "profile": {
-      "name": "Muhammad Alam",
-      "age": "20",
+      "name": "",
+      "age": "",
       "allergies": [],
       "conditions": [],
       "medications": [],
