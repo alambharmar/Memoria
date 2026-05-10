@@ -3,7 +3,6 @@
 
 {% block content %}
 <div class="dash">
-    <!-- Greeting + Status -->
     <div class="dash-hero">
         <div>
             <h1 class="dash-greeting">Welcome back, {{ user_name }}</h1>
@@ -15,7 +14,6 @@
         </div>
     </div>
 
-    <!-- Quick Actions -->
     <div class="dash-actions">
         <a href="{{ url_for('chat') }}" class="dash-action-card dash-action-chat">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M8 9h8"/><path d="M8 13h5"/></svg>
@@ -35,7 +33,6 @@
         </a>
     </div>
 
-    <!-- Stats Row -->
     <div class="dash-stats">
         <div class="stat-card">
             <div class="stat-value">{{ profile.medications | length }}</div>
@@ -55,9 +52,7 @@
         </div>
     </div>
 
-    <!-- Two Column -->
     <div class="dash-two-col">
-        <!-- Profile Snapshot -->
         <div class="card">
             <div class="card-header">
                 <h3>Health Profile</h3>
@@ -81,7 +76,6 @@
             </div>
         </div>
 
-        <!-- Active Medications -->
         <div class="card">
             <div class="card-header">
                 <h3>Medications</h3>
@@ -107,9 +101,7 @@
         </div>
     </div>
 
-    <!-- Recent Activity -->
     <div class="dash-two-col">
-        <!-- Recent Symptoms -->
         <div class="card">
             <div class="card-header">
                 <h3>Recent Symptoms</h3>
@@ -134,7 +126,6 @@
             </div>
         </div>
 
-        <!-- Recent Vitals -->
         <div class="card">
             <div class="card-header">
                 <h3>Recent Vitals</h3>
@@ -160,7 +151,6 @@
         </div>
     </div>
 
-    <!-- Conditions & Allergies -->
     {% if profile.conditions or profile.allergies %}
     <div class="card">
         <div class="card-header">
