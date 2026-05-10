@@ -6,12 +6,8 @@
     <title>Login — Memoria</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <script>
-        const savedTheme = localStorage.getItem('theme') || 'dark';
-        document.documentElement.setAttribute('data-theme', savedTheme);
-    </script>
 </head>
 <body>
     <div class="login-page">
@@ -19,7 +15,7 @@
             <div class="login-brand">
                 <img src="{{ url_for('static', filename='img/icon.png') }}" alt="" class="login-logo">
                 <h1>Memoria</h1>
-                <p>Health Intelligence</p>
+                <p>AI-Powered Health Intelligence</p>
             </div>
             {% if error %}
             <div class="login-error">{{ error }}</div>

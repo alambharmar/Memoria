@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat — Memoria</title>
-    <meta name="description" content="Memoria — AI-powered health intelligence">
+    <meta name="description" content="Memoria — Your AI-powered health assistant">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <script>
         const savedTheme = localStorage.getItem('theme') || 'dark';
@@ -20,6 +20,7 @@
          data-ai-status="{{ 'online' if ai_status else 'limited' }}"
          data-model="{{ model }}">
 
+        <!-- Sidebar Open Button (visible when collapsed) -->
         <button class="sidebar-open-btn" id="sidebar-open-btn" type="button" aria-label="Open sidebar">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M3 12h18"></path>
@@ -28,6 +29,7 @@
             </svg>
         </button>
 
+        <!-- Sidebar -->
         <aside class="sidebar" id="sidebar">
             <div class="brand">
                 <img src="{{ url_for('static', filename='img/icon.png') }}" alt="" class="brand-logo">
@@ -36,14 +38,6 @@
                     <div class="brand-sub">Health Intelligence</div>
                 </div>
             </div>
-
-            <button class="new-chat-btn" id="new-chat-btn" type="button">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M12 5v14"></path>
-                    <path d="M5 12h14"></path>
-                </svg>
-                <span>New Chat</span>
-            </button>
 
             <div class="sidebar-nav-links">
                 <div class="history-label">Navigate</div>
@@ -65,6 +59,14 @@
                 </a>
             </div>
 
+            <button class="new-chat-btn" id="new-chat-btn" type="button">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 5v14"></path>
+                    <path d="M5 12h14"></path>
+                </svg>
+                <span>New Chat</span>
+            </button>
+
             <div class="history-label">Conversations</div>
             <ul class="history-list" id="history-list"></ul>
 
@@ -85,6 +87,7 @@
             </div>
         </aside>
 
+        <!-- Main Chat -->
         <section class="main">
             <header class="topbar">
                 <div class="topbar-greeting">
@@ -92,7 +95,7 @@
                     <h1>Welcome back, {{ user_name }}</h1>
                 </div>
                 <div class="topbar-actions">
-                    <button class="btn btn-sm btn-outline" id="clear-chat-btn" style="margin-right: 8px;">Clear Chat</button>
+                    <button class="btn btn-sm btn-outline" id="clear-chat-btn" style="margin-right: 12px;">Clear Chat</button>
                     <div class="profile-menu" id="profile-menu">
                         <button class="profile-trigger" id="profile-trigger" type="button" aria-expanded="false" aria-label="Profile menu">
                             <span class="profile-initial">{{ user_name[:1] }}</span>
@@ -126,7 +129,7 @@
             <footer class="composer">
                 <form class="composer-form" id="chat-form" autocomplete="off">
                     <div class="input-wrap" id="input-wrap">
-                        <textarea id="chat-input" placeholder="Message Memoria..." rows="1"></textarea>
+                        <textarea id="chat-input" placeholder="Message Memoria…" rows="1"></textarea>
                         <button class="send-btn" id="send-btn" type="submit" aria-label="Send message">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M5 12h14"></path>
