@@ -177,13 +177,9 @@ function saveProfile(e) {
                 el.textContent = savedName[0].toUpperCase();
             });
             const dashGreeting = document.querySelector('.dash-greeting');
-            if (dashGreeting) {
-                dashGreeting.textContent = 'Welcome back, ' + savedName;
-            }
+            if (dashGreeting) dashGreeting.textContent = 'Welcome back, ' + savedName;
             const topbarH1 = document.querySelector('.topbar-greeting h1');
-            if (topbarH1) {
-                topbarH1.textContent = 'Welcome back, ' + savedName;
-            }
+            if (topbarH1) topbarH1.textContent = 'Welcome back, ' + savedName;
         }
         showMessage('profile-msg', 'Profile saved!', 'success');
     });
